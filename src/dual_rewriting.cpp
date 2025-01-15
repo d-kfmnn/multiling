@@ -848,14 +848,18 @@ static std::vector<Term*> internal_pivot_calc (Term * outer, Term * pivot, Term 
     outer_t = outer_t->get_rest();
   }
   Term * rem = sort_and_build_term_from_vector(remainder);
- 
+  
+
+
  
   Term * quo;
   if(term_vector_contains_only_singles(quotient)){
     quo = gen_dual_term_from_vector(quotient);
   } else {
+ 
     Term * tmp_t = 0;
     if(quotient.size() == 2) {
+  
       tmp_t = second_level_rewriting(quotient, pivot, rem);
       if(!tmp_t) return res;
       quo = new_term(tmp_t->get_var()->get_dual(), 0);
@@ -865,18 +869,14 @@ static std::vector<Term*> internal_pivot_calc (Term * outer, Term * pivot, Term 
       Gate * g = gate(outer->get_rest()->get_var_num());
       Polynomial * g_gc = g->get_gate_constraint();
       Gate * g1 = gate(g_gc->get_tail_term()->get_rest()->get_var_num());
-      msg("before her");
+    
       eliminate_by_one_gate(g, g1); // was guarded by xor
       return res;
 
-    } else if (size_three_vec_first_has_size_three(quotient)){
-      Gate * g = gate(outer->get_var_num());
-      expand_tail_term_and_update_gc(g);
-      return res;
 
     } else return res;
   }
-
+ 
  if(quo && quo->degree() == 2 && !quo->get_var()->is_dual()){
    Gate * parent = gate(quo->get_var_num());
    Polynomial * parent_gc = parent->get_gate_constraint();
@@ -965,12 +965,16 @@ static std::vector<Term *> larger_pivot_rewriting(Term * mul, Term * rem){
 
 /*----------------------------------------------------------------------------*/
 static int pivot_rewriting(Gate * outer, Term * pivot){
+  
+  
   Polynomial * outer_gc = outer->get_gate_constraint();
+
   Term * outer_t = outer_gc->get_tail_term();
   
 
   // first step where all come from outer_t
   std::vector<Term*> res = internal_pivot_calc(outer_t, pivot);
+ 
   if(res.empty()) return 0;
   Term * sub = res.front();
   Term * rem = res.back();
@@ -1087,12 +1091,13 @@ static void removing_f_chains() {
       }
 
 
-
+     
       Term * outer_t = outer_gc->get_tail_term();
 
 
     
       if(first){
+        
         init_gc.push_back(outer_gc->copy());
 
         if(outer_t->degree() != get_dual_count(outer_t)){
@@ -1118,19 +1123,19 @@ static void removing_f_chains() {
 
         Polynomial * g0_gc = g0->get_gate_constraint();
         if (g0_gc->size() != 2) continue;
-       
+     
 
         Polynomial * g1_gc = g1->get_gate_constraint();
         if (g1_gc->size() != 2) continue;
-   
+
 
         Term * t0 = g0_gc->get_tail_term();
         Term * t1 = g1_gc->get_tail_term();
 
         Term * pivot =  calc_pivot(t0, t1);
-     
+    
         if(!pivot || pivot->degree()>1) continue;
-   
+ 
         flag = pivot_rewriting(outer, pivot);
         
         if (flag == -1) expand_first_two(outer_t);

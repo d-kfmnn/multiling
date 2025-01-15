@@ -23,7 +23,7 @@
 
 /*------------------------------------------------------------------------*/
 
-bool   linearize_via_gb(Gate *g, int depth, bool pre, mpz_t coeff);
+bool   linearize_via_gb(Gate *g, int depth, bool pre, mpz_t coeff, bool full);
 Polynomial *flip_var_in_poly(const Polynomial *p1, Var *v);
 Polynomial *unflip_poly(Polynomial *p);
 

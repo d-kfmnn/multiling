@@ -302,6 +302,15 @@ bool following_token_is_EOF()    { return next_token() == END_OF_FILE_TOKEN;}
 
 void parse_error(const char * msg, ...) {
   fflush(stdout);
+
+  fprintf(stdout,"\n\n\nprinting statistics until interruption:\n");
+  double interruption = process_time();
+  double last_gb_time = interruption - call_init_time;
+  gb_time+=last_gb_time;
+  print_statistics();
+  fprintf(stdout, "[mltlng] interrupted msolve call time: %19.5f", last_gb_time);
+  fprintf(stdout,"\n\n"),
+  
   fprintf(stderr,
     "*** parse error in '%s' line %i",
     parse_file_name, lineno_at_start_of_last_token);
@@ -316,6 +325,8 @@ void parse_error(const char * msg, ...) {
   va_end(ap);
   fputc('\n', stderr);
   fflush(stderr);
+  fprintf(stderr,"parsing of linear polynomial failed - potentially caused by interrupting msolve\n");
+  
   exit(1);
 }
 

@@ -43,6 +43,22 @@ static void  add_children(Gate *g, int depth, bool pre){
   }
 }
 /*------------------------------------------------------------------------*/
+static void  add_all_remaining(Gate *g){
+
+   for (int i = num_gates-1; i>=0; i--)
+   {
+    Gate *gc = gates[i];
+    if(gc->get_input()) {
+      var.insert(gc);
+      continue;
+    }
+    if (gc->get_var_level() > g->get_var_level()) continue;
+
+    gate_poly.insert(gc);
+    var.insert(gc);
+   }
+}
+/*------------------------------------------------------------------------*/
 static void add_spouses(Gate *g, bool pre ){
   
   for(auto& gc : g->get_children()){
@@ -215,7 +231,8 @@ static bool print_to_msolve(Gate *g){
     if(gatep != *var.rbegin()) fprintf(f,",\n");
   }
   fclose(f);
-  count_gb_calls++;
+  
+  
   std::string msolvecall = "msolve -f " + output + " -g 2 "; // this is hardcoded for the artifact
   std::string add_grep = msolvecall + "| grep -m2 " + g->get_var_name() + " | tail -n1 | ";
   std::string remove_ones = add_grep + "sed 's/\\(\\^\\)1\\b//g; s/+1073741826/-1/g; ; s/+1073741825/-2/g' > " + respath;
@@ -234,28 +251,50 @@ static bool print_to_msolve(Gate *g){
 }
 
 /*------------------------------------------------------------------------*/
-bool linearize_via_gb(Gate *g, int depth, bool pre, mpz_t coeff){
+
+
+bool linearize_via_gb(Gate *g, int depth, bool pre, mpz_t coeff, bool full){
        var.clear();
   gate_poly.clear();
   if(verbose >= 3) msg("calling GB in msolve for %s", g->get_var_name());
 
   int max_depth = g->get_var()->get_dist();
   bool prep = 0; // REMOVE THIS IF PRE IS FIXED TO BE FAST AND CHANGE EVERY PREP TO PRE
-  add_children(g, depth, prep);
   
-
-  if(!pre) add_spouses(g, prep);
-  add_common_ancestors(g, prep );
-  
+  if(!full){
+    add_children(g, depth, prep);
+    if(!pre) add_spouses(g, prep);
+    add_common_ancestors(g, prep );
+  } else {
+    msg("max depth reached for %s - add all of the remaining circuit", g->get_var_name());
+    add_all_remaining(g);
+  }
   
   bool res = 0;
+  msg("calling msolve for %s, d= %i, size= %i, var= %i", g->get_var_name(), depth, gate_poly.size(),  var.size());
+
+  count_gb_calls++;
+  if(depth == 3) unique_gb_calls++;
+  count_arr[depth-3]++;
+  size_arr[depth-3]+=gate_poly.size();
+  var_size_arr[depth-3]+=var.size();
+
+  call_init_time = process_time();
   res = print_to_msolve(g);
+  call_end_time = process_time();
+  double call_time = call_end_time - call_init_time;
+  msg("used time for %s, d=%i: %.5f seconds", g->get_var_name(), depth, call_time);
+  gb_time+=call_time;
+  time_arr[depth-3]+=call_time;
+  msg("");
 
   if(!res && depth < max_depth) {
 
-      return linearize_via_gb(g, depth+1, pre, coeff);
+      return linearize_via_gb(g, depth+1, pre, coeff,0);
     }
-    else if (!res) {
+  else if(!res && depth == max_depth){
+     return linearize_via_gb(g, depth+1, pre, coeff,1);
+  } else if (!res) {
       return 0;
     }   
 

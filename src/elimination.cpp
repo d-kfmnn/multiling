@@ -43,6 +43,7 @@ static Polynomial *unfold_linear_poly(Polynomial *p)
 /*------------------------------------------------------------------------*/
 static bool rewrite_l_f_pairs(Gate *g, Gate *g_c_p)
 {
+
   if (!g->equal_children(g_c_p))
     return 0;
 
@@ -104,6 +105,9 @@ static Gate *rewrite_l_f(Gate *g)
   if (verbose >= 3)
     msg("rewrite l f %s", g->get_var_name());
 
+
+  auto g_update_children = get_var_of_poly(g);
+  g->set_children(g_update_children);
   Gate *g_c = *(g->children_begin());
 
   for (auto it = g_c->parents_begin(); it != g_c->parents_end(); it++)
@@ -358,7 +362,7 @@ static void local_rewriting(Gate *g, mpz_t coeff)
     return;
   }
 
-  linearize_via_gb(g, 2, 0, coeff);
+  linearize_via_gb(g, 3, 0, coeff,0);
 
   if (!g->get_gate_constraint())
     die(2, "g lost gate constraint");
@@ -1182,6 +1186,7 @@ Polynomial *reduce(Polynomial *spec)
     }
 
     tmp = substitute_linear_poly(rem, n);
+    linear_count++;
 
     if (tmp)
       tmp = mod_poly(tmp);
@@ -1222,6 +1227,7 @@ Polynomial *reduce(Polynomial *spec)
     }
 
     tmp = reduce_by_one_poly(rem, n);
+    non_linear_count++;
 
     if (tmp)
       tmp = mod_poly(tmp);

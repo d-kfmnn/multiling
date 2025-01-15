@@ -30,7 +30,7 @@ static Polynomial * positive_poly(Var * v) {
 }
 
 /*------------------------------------------------------------------------*/
-static std::list<Gate*>  get_var_of_poly(Gate * g){
+std::list<Gate*>  get_var_of_poly(Gate * g){
   std::list<Gate*> res;
   Polynomial * p = g->get_gate_constraint();
 

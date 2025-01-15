@@ -33,12 +33,23 @@ extern int child_l_f_count;
 extern int children_share_l_f_count;
 extern int elim_pos_nodes;
 extern int totalcount;
+extern int unique_gb_calls;
 extern int equiv_gate_count;
 extern bool miter_inp;
 extern bool mult_inp;
 extern const char * bench;
+extern int count_arr[6];
+extern int size_arr[6];
+extern int var_size_arr[6];
+extern double time_arr[6];
+extern double call_init_time;
+extern double call_end_time;
+extern int non_linear_count;
+extern int linear_count;
 
+extern double gb_time;
 
+extern struct timeval start_tv;
 
 
 /**
@@ -54,6 +65,8 @@ const char * signal_name(int sig);
     Initialize all signals
 */
 void init_all_signal_handers();
+
+void init_time();
 
 
 /**
@@ -90,11 +103,7 @@ void msg(const char *fmt, ...);
 /*------------------------------------------------------------------------*/
 
 // / Time measures used for verify/certify modus
-extern double init_time;          // /< measure initializing time
-extern double slicing_elim_time;  // /< measure time used to eliminate & slice
-extern double reduction_time;     // /< measure time used to reduce
-extern double reset_time;         // /< measure resetting time
-extern double substitution_time;  // /< measure time used in substitution
+
 extern int count_gb_calls;
 /**
     Determines max used memory

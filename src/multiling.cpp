@@ -89,6 +89,7 @@ static void reset_all() {
 */
 int main(int argc, char ** argv) {
   std::srand(std::time(0));
+  init_time();
   msg("MultiLinG Version " VERSION);
   msg("AIG Verification using Linear Extractions from Groebner Bases");
   msg("Copyright(C) 2024, 2025, Daniela Kaufmann, TU Wien");
@@ -146,7 +147,6 @@ int main(int argc, char ** argv) {
   reset_aig_parsing();
   reset_all();
 
-  reset_time = process_time();
   print_statistics();
 
   return res;

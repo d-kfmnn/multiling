@@ -431,7 +431,7 @@ void adjust_level_of_extended_gates();
 */
 void delete_gates();
 
-
+std::list<Gate*>  get_var_of_poly(Gate * g);
 
 // / vector-list Gate* matrix to store slices
 extern std::vector<Gate*> slices;
